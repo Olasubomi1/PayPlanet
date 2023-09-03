@@ -1,0 +1,19 @@
+######################## Messages for Error ##########################
+E00: Operation successful.
+E01: IP banned.
+E02: User record not found.
+E03A: User record already exists by email.
+E03B: User record already exists by username.
+E03C: User record already exists by mobileNumber.
+E04: DeviceId not present for mobile channel.
+E05: Incorrect email or password.
+E06: Account is locked. Please contact administrator or support.
+E07: Otp is expired. Please request for a fresh otp.
+E08: Otp is incorrect.
+E09: Otp already verified by system.
+E10: Incorrect password.
+E11: Account successfully locked.
+E12: User account is already locked.
+E13: Third party failure.
+E14: Insufficient account balance.
+E99: System Error.

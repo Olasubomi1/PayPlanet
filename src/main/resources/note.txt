@@ -1,0 +1,7 @@
+Base package: com.SoftTech.PayPlanet
+
+Entities
+1) User
+2) Wallet
+
+
