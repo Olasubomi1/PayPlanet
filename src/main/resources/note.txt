@@ -1,7 +1,35 @@
 Base package: com.SoftTech.PayPlanet
 
 Entities
-1) User
-2) Wallet
+1. User
+2. Wallet
+3. Transaction
 
+Base package com.SoftTech.PayPlanet
 
+        User
+  id: number
+  user_id: string uuid
+  username: string
+  mobile_number: string
+  email_address: string
+  email_verified_at: Date;
+  password: string
+  last_login_date: Date
+  deleted_at: Date;
+  auth_token: string;
+  created_at: Date
+  updated_at: Date;
+  is_verified: boolean;
+  user_role_id: number
+  photo_link: string
+  created_by: string
+  modified_by: string
+  login_attempt: number
+  auth_token_created_date: Date;
+  auth_token_expiration_date: Date;
+  otp: string
+  otp_ceated_date: Date;
+  otp_exp_date: Date;
+  is_otp_verified: boolean;
+  status: varchar
