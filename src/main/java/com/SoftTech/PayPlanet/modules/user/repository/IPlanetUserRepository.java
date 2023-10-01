@@ -1,4 +1,11 @@
 package com.SoftTech.PayPlanet.modules.user.repository;
 
-public interface IPlanetUserRepository {
+import com.SoftTech.PayPlanet.modules.user.model.PlanetUser;
+import com.SoftTech.PayPlanet.modules.user.payload.request.SignupUserRequestPayload;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface IPlanetUserRepository extends JpaRepository<PlanetUser, Long> {
+    PlanetUser findByEmailAddress(String emailAddress);
+    PlanetUser findByUsername(String username);
+    PlanetUser findByMobileNumber(String mobileNumber);
 }
