@@ -1,16 +1,23 @@
 package com.SoftTech.PayPlanet.modules.user.service;
 
 import com.SoftTech.PayPlanet.config.MessageProvider;
+import com.SoftTech.PayPlanet.constants.Creator;
 import com.SoftTech.PayPlanet.constants.ResponseCode;
+import com.SoftTech.PayPlanet.constants.RoleName;
+import com.SoftTech.PayPlanet.constants.Status;
 import com.SoftTech.PayPlanet.dto.ErrorResponse;
+import com.SoftTech.PayPlanet.dto.PayloadResponse;
 import com.SoftTech.PayPlanet.dto.ServerResponse;
 import com.SoftTech.PayPlanet.modules.user.model.PlanetUser;
 import com.SoftTech.PayPlanet.modules.user.payload.request.SignupUserRequestPayload;
+import com.SoftTech.PayPlanet.modules.user.payload.response.SignupUserResponsePayload;
 import com.SoftTech.PayPlanet.modules.user.repository.IPlanetUserRepository;
+import com.SoftTech.PayPlanet.utils.JwtUtil;
 import com.SoftTech.PayPlanet.utils.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -23,6 +30,9 @@ public class PlanetUserService implements IPlanetUserService{
 
     @Autowired
     private PasswordUtil passwordUtil;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Override
     public ServerResponse signupUser(SignupUserRequestPayload requestPayload) {
@@ -68,10 +78,33 @@ public class PlanetUserService implements IPlanetUserService{
         user.setPassword(passwordUtil.hashPassword(requestPayload.getPassword()));
         user.setMobileNumber(requestPayload.getMobileNumber());
         user.setGender(requestPayload.getGender().toUpperCase());
-        // getting jwt secret
+        user.setCreatedAt(LocalDateTime.now());
+        user.setCreatedBy(Creator.SYSTEM.name());
+        user.setModifiedBy(Creator.SYSTEM.name());
+        user.setUpdatedAt(LocalDateTime.now());
+        user.setAuthToken(jwtUtil.createJWTString(requestPayload.getEmailAddress()));
+        user.setAuthTokenCreationDate(LocalDateTime.now());
+        user.setAuthTokenExpirationDate(jwtUtil.getJWTExpiration(LocalDateTime.now()));
+        user.setUpdatedAt(LocalDateTime.now());
+        user.setLoginAttempt(0);
         user.setOtpVerified(false);
         user.setIsVerified(false);
+        user.setUserStatus(Status.UNVERIFIED.name());
+        PlanetUser savedUser = userRepository.saveAndFlush(user);
 
-        return null;
+        SignupUserResponsePayload responsePayload = new SignupUserResponsePayload();
+        responsePayload.setAuthToken(savedUser.getAuthToken());
+        responsePayload.setUsername(savedUser.getUsername());
+        responsePayload.setCreatedAt(savedUser.getCreatedAt());
+        responsePayload.setUpdatedAt(savedUser.getUpdatedAt());
+
+        responseCode = ResponseCode.SUCCESS;
+        responseMessage = messageProvider.getMessage(responseCode);
+        PayloadResponse response = PayloadResponse.getInstance();
+        response.setResponseCode(responseCode);
+        response.setResponseMessage(responseMessage);
+        response.setResponseData(responsePayload);
+
+        return response;
     }
 }
