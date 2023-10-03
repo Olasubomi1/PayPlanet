@@ -69,7 +69,7 @@ public class PlanetUser {
     private String modifiedBy;
 
     @Column(name = "login_attempt")
-    private Long loginAttempt;
+    private int loginAttempt;
 
     @Column(name = "auth_token_creation_date")
     private LocalDateTime authTokenCreationDate;
