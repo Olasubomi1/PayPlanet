@@ -10,7 +10,9 @@ import com.SoftTech.PayPlanet.dto.OtpSendInfo;
 import com.SoftTech.PayPlanet.dto.PayloadResponse;
 import com.SoftTech.PayPlanet.dto.ServerResponse;
 import com.SoftTech.PayPlanet.modules.user.model.PlanetUser;
+import com.SoftTech.PayPlanet.modules.user.payload.request.SignupOtpVerificationRequestPayload;
 import com.SoftTech.PayPlanet.modules.user.payload.request.SignupUserRequestPayload;
+import com.SoftTech.PayPlanet.modules.user.payload.response.SignupOtpVerificationResponsePayload;
 import com.SoftTech.PayPlanet.modules.user.payload.response.SignupUserResponsePayload;
 import com.SoftTech.PayPlanet.modules.user.repository.IPlanetUserRepository;
 import com.SoftTech.PayPlanet.utils.JwtUtil;
@@ -19,6 +21,7 @@ import com.SoftTech.PayPlanet.utils.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -133,5 +136,91 @@ public class PlanetUserService implements IPlanetUserService{
         response.setResponseData(responsePayload);
 
         return response;
+    }
+
+    @Override
+    public ServerResponse signupOtpVerification(SignupOtpVerificationRequestPayload requestPayload, String authToken) {
+        String responseCode = ResponseCode.SYSTEM_ERROR;
+        String responseMessage = this.messageProvider.getMessage(responseCode);
+        ErrorResponse errorResponse = ErrorResponse.getInstance();
+
+        String otpFromUser = requestPayload.getOtp();
+        String userEmail = jwtUtil.getUserEmailFromJWTToken(authToken);
+        PlanetUser user = userRepository.findByEmailAddress(userEmail);
+
+        // Check for the existence of the user in the system
+        if(user == null) {
+            responseCode = ResponseCode.RECORD_NOT_FOUND;
+            responseMessage = messageProvider.getMessage(responseCode);
+            errorResponse.setResponseCode(responseCode);
+            errorResponse.setResponseMessage(responseMessage);
+            return errorResponse;
+        }
+
+        // Check if Otp is already verified.
+        if(user.isOtpVerified()){
+            responseCode = ResponseCode.OTP_ALREADY_VERIFIED;
+            responseMessage = messageProvider.getMessage(responseCode);
+            errorResponse.setResponseCode(responseCode);
+            errorResponse.setResponseMessage(responseMessage);
+            return errorResponse;
+        }
+
+        // Check if otp has expired
+        if(user.getOtpExpDate().isBefore(LocalDateTime.now())){
+            responseCode = ResponseCode.OTP_EXPIRED;
+            responseMessage = messageProvider.getMessage(responseCode);
+            errorResponse.setResponseCode(responseCode);
+            errorResponse.setResponseMessage(responseMessage);
+            return errorResponse;
+        }
+
+        // Check for the correctness of the otp
+        boolean isOtpCorrect = passwordUtil.isPasswordMatch(otpFromUser, user.getOtp());
+        if(!isOtpCorrect){
+            responseCode = ResponseCode.OTP_INCORRECT;
+            responseMessage = messageProvider.getMessage(responseCode);
+            errorResponse.setResponseCode(responseCode);
+            errorResponse.setResponseMessage(responseMessage);
+            return errorResponse;
+        }
+
+        // Update the user status
+        user.setUserStatus(Status.ACTIVE.name());
+        user.setOtpVerified(true);
+        user.setIsVerified(true);
+        userRepository.saveAndFlush(user);
+
+        CompletableFuture.runAsync(() -> {
+            // Asynchronously create a wallet for the user.
+//            BetasaveWallet betasaveWallet = new BetasaveWallet();
+//            betasaveWallet.setWalletId(WalletUtils.generateUniqueWalletId());
+//            betasaveWallet.setUserId(user.getUserId());
+//            betasaveWallet.setUserEmail(user.getEmailAddress());
+//            betasaveWallet.setCreateAt(LocalDateTime.now());
+//            betasaveWallet.setUpdatedAt(LocalDateTime.now());
+//            betasaveWallet.setCreatedBy(Creator.SYSTEM.name());
+//            betasaveWallet.setUpdatedBy(Creator.SYSTEM.name());
+//            betasaveWallet.setCurrencyId(currencyRepository.findByCurrencyName(DEFAULT_CURRENCY_NAME).getId()); // TODO
+//            betasaveWallet.setBalance(new BigDecimal(0));
+//            walletRepository.save(betasaveWallet);
+
+            // Call a service to create a paystack customer associated with user
+            // Use the customerId from paystack to create a virtual account for the customer.
+
+        });
+
+        // Create response to the application client.
+        SignupOtpVerificationResponsePayload responsePayload = new SignupOtpVerificationResponsePayload();
+        responsePayload.setAuthToken(user.getAuthToken());
+        responsePayload.setUserStatus(user.getUserStatus());
+        responsePayload.setVerifiedDateTime(LocalDateTime.now());
+        responsePayload.setCreatedDateTime(user.getOtpCreatedDate());
+
+        PayloadResponse payloadResponse = PayloadResponse.getInstance();
+        payloadResponse.setResponseCode(ResponseCode.SUCCESS);
+        payloadResponse.setResponseMessage(messageProvider.getMessage(ResponseCode.SUCCESS));
+        payloadResponse.setResponseData(responsePayload);
+        return payloadResponse;
     }
 }
