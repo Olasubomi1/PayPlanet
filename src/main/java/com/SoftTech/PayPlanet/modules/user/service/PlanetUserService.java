@@ -15,6 +15,9 @@ import com.SoftTech.PayPlanet.modules.user.payload.request.SignupUserRequestPayl
 import com.SoftTech.PayPlanet.modules.user.payload.response.SignupOtpVerificationResponsePayload;
 import com.SoftTech.PayPlanet.modules.user.payload.response.SignupUserResponsePayload;
 import com.SoftTech.PayPlanet.modules.user.repository.IPlanetUserRepository;
+import com.SoftTech.PayPlanet.modules.wallet.model.PlanetWallet;
+import com.SoftTech.PayPlanet.modules.wallet.repository.WalletRepository;
+import com.SoftTech.PayPlanet.modules.wallet.utils.WalletUtils;
 import com.SoftTech.PayPlanet.utils.JwtUtil;
 import com.SoftTech.PayPlanet.utils.OtpUtil;
 import com.SoftTech.PayPlanet.utils.PasswordUtil;
@@ -30,6 +33,9 @@ import java.util.concurrent.CompletableFuture;
 public class PlanetUserService implements IPlanetUserService{
     @Autowired
     private IPlanetUserRepository userRepository;
+
+    @Autowired
+    private WalletRepository walletRepository;
 
     @Autowired
     private MessageProvider messageProvider;
@@ -148,6 +154,7 @@ public class PlanetUserService implements IPlanetUserService{
         String userEmail = jwtUtil.getUserEmailFromJWTToken(authToken);
         PlanetUser user = userRepository.findByEmailAddress(userEmail);
 
+
         // Check for the existence of the user in the system
         if(user == null) {
             responseCode = ResponseCode.RECORD_NOT_FOUND;
@@ -193,19 +200,19 @@ public class PlanetUserService implements IPlanetUserService{
 
         CompletableFuture.runAsync(() -> {
             // Asynchronously create a wallet for the user.
-//            BetasaveWallet betasaveWallet = new BetasaveWallet();
-//            betasaveWallet.setWalletId(WalletUtils.generateUniqueWalletId());
-//            betasaveWallet.setUserId(user.getUserId());
-//            betasaveWallet.setUserEmail(user.getEmailAddress());
-//            betasaveWallet.setCreateAt(LocalDateTime.now());
-//            betasaveWallet.setUpdatedAt(LocalDateTime.now());
-//            betasaveWallet.setCreatedBy(Creator.SYSTEM.name());
-//            betasaveWallet.setUpdatedBy(Creator.SYSTEM.name());
-//            betasaveWallet.setCurrencyId(currencyRepository.findByCurrencyName(DEFAULT_CURRENCY_NAME).getId()); // TODO
-//            betasaveWallet.setBalance(new BigDecimal(0));
-//            walletRepository.save(betasaveWallet);
+            PlanetWallet planetWallet = new PlanetWallet();
+            planetWallet.setWalletId(WalletUtils.generateUniqueWalletId());
+            planetWallet.setUserId(user.getUserId());
+            planetWallet.setUserEmail(user.getEmailAddress());
+            planetWallet.setCreateAt(LocalDateTime.now());
+            planetWallet.setUpdatedAt(LocalDateTime.now());
+            planetWallet.setCreatedBy(Creator.SYSTEM.name());
+            planetWallet.setUpdatedBy(Creator.SYSTEM.name());
+            planetWallet.setBalance(new BigDecimal(0));
+            walletRepository.saveAndFlush(planetWallet);
 
             // Call a service to create a paystack customer associated with user
+
             // Use the customerId from paystack to create a virtual account for the customer.
 
         });
