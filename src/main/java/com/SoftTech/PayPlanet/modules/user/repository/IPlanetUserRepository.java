@@ -1,7 +1,6 @@
 package com.SoftTech.PayPlanet.modules.user.repository;
 
 import com.SoftTech.PayPlanet.modules.user.model.PlanetUser;
-import com.SoftTech.PayPlanet.modules.user.payload.request.SignupUserRequestPayload;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface IPlanetUserRepository extends JpaRepository<PlanetUser, Long> {

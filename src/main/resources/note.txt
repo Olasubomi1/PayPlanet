@@ -33,3 +33,30 @@ Base package com.SoftTech.PayPlanet
   otp_exp_date: Date;
   is_otp_verified: boolean;
   status: varchar
+
+
+
+MODULES
+USER
+1) Endpoint for signup/resgistration/onboarding --> status UNVERIFIED. done
+2) Endpoint for verifying OTP of a newly registered user.  pending
+3) Endpoint for login.
+4) Endpoint for resetting password.
+5) Endpoint for forgot password.
+6) Endpoint for forget password email otp verification.
+7) Endpoint to get user details.
+8) Endpoint to update any user detail apart from EMAIL.
+9) Endpoint to self lock user account.
+
+WALLET
+1) Endpoint to create a new wallet for a VERIFIED/ACTIVE user. (Not an endpoint, internal)
+2) Endpoint to self fund user wallet.
+3) Endpoint to transfer funds from user wallet to user bank account.
+4) Endpoint to transfer funds from bank account to wallet.
+5) Endpoint to transfer funds from wallet to another wallet.
+
+DATABASE CREDENTIALS
+from ref: get user details
+    call paystack verification api using ref
+    if success: credit user wallet and save transaction verification log to a new table(bt_init_tran_verification)
+        failed :  save verification log

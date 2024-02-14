@@ -103,7 +103,7 @@ public class PlanetUserService implements IPlanetUserService{
         user.setUpdatedAt(LocalDateTime.now());
         user.setLoginAttempt(0);
         user.setOtpVerified(false);
-        user.setIsVerified(false);
+        user.setIsVerified(false); // UNVERIFIED
         user.setUserStatus(Status.UNVERIFIED.name());
         PlanetUser savedUser = userRepository.saveAndFlush(user);
 
