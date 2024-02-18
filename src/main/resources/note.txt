@@ -60,3 +60,17 @@ from ref: get user details
     call paystack verification api using ref
     if success: credit user wallet and save transaction verification log to a new table(bt_init_tran_verification)
         failed :  save verification log
+
+
+-User Authentication: Implementing secure user authentication mechanisms
+to allow users to create accounts, log in securely, and manage their profiles.
+-Account Management: Providing users with functionalities to view
+account balances, transfer funds between accounts, and manage transactions.
+-Bill Payment: Enabling users to pay bills online, set up recurring payments,
+ and view payment history for various bills and utilities.
+-Loan Services: Offering users the ability to apply for loans online,
+view loan details, and manage loan payments.
+-Financial Planning Tools: Integrating tools for users to track expenses,
+ set budgets, and analyze their financial health.
+-Customer Support: Implementing a support system to allow users to
+contact customer service, report issues, and receive assistance promptly.

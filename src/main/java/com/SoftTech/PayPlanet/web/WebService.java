@@ -4,6 +4,7 @@ import com.SoftTech.PayPlanet.constants.ResponseCode;
 import com.SoftTech.PayPlanet.dto.ErrorResponse;
 import com.google.gson.Gson;
 import kong.unirest.GetRequest;
+import kong.unirest.RequestBodyEntity;
 import kong.unirest.Unirest;
 import kong.unirest.UnirestException;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,33 @@ public class WebService {
             errorResponse.setResponseMessage(ResponseCode.THIRD_PARTY_FAILURE);
             errorResponse.setResponseMessage(exception.getMessage());
             return gson.toJson(errorResponse);
+        }
+    }
+
+    public static String postForObject(String url, String body, Map<String, Object> params, Map<String, String> headers)
+    {
+        PaystackWebResponse paystackWebResponse = new PaystackWebResponse();
+        paystackWebResponse.setConnectionError(false);
+
+        try{
+            RequestBodyEntity postRequest = Unirest.post(url).body(body);
+            if(params != null)
+                postRequest.queryString(params);
+            if(headers != null)
+                postRequest.headers(headers);
+
+            String webDataString = postRequest.asString().getBody();
+            paystackWebResponse.setWebDataString(webDataString);
+
+            log.info("Paystack response: {}", webDataString);
+            return gson.toJson(paystackWebResponse);
+        }
+        catch (UnirestException exception) {
+            log.error("Server connection or client error: {}", exception.getMessage());
+            paystackWebResponse.setMessage(exception.getMessage());
+            paystackWebResponse.setStatus(false);
+            paystackWebResponse.setConnectionError(true);
+            return gson.toJson(paystackWebResponse);
         }
     }
 
