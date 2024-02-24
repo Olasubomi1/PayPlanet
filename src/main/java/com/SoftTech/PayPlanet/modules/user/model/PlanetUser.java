@@ -26,6 +26,12 @@ public class PlanetUser {
     @Column(name = "mobile_number")
     private String mobileNumber;
 
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
     @Column(name = "email_address")
     private String emailAddress;
 

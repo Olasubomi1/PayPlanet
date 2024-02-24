@@ -9,6 +9,7 @@ import com.SoftTech.PayPlanet.dto.ErrorResponse;
 import com.SoftTech.PayPlanet.dto.OtpSendInfo;
 import com.SoftTech.PayPlanet.dto.PayloadResponse;
 import com.SoftTech.PayPlanet.dto.ServerResponse;
+import com.SoftTech.PayPlanet.modules.paystack.service.CustomerService;
 import com.SoftTech.PayPlanet.modules.user.model.PlanetUser;
 import com.SoftTech.PayPlanet.modules.user.payload.request.SignupOtpVerificationRequestPayload;
 import com.SoftTech.PayPlanet.modules.user.payload.request.SignupUserRequestPayload;
@@ -21,6 +22,7 @@ import com.SoftTech.PayPlanet.modules.wallet.utils.WalletUtils;
 import com.SoftTech.PayPlanet.utils.JwtUtil;
 import com.SoftTech.PayPlanet.utils.OtpUtil;
 import com.SoftTech.PayPlanet.utils.PasswordUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @Service
 public class PlanetUserService implements IPlanetUserService{
     @Autowired
@@ -48,6 +51,9 @@ public class PlanetUserService implements IPlanetUserService{
 
     @Autowired
     private OtpUtil otpUtil;
+
+    @Autowired
+    private CustomerService customerService;
 
     @Override
     public ServerResponse signupUser(SignupUserRequestPayload requestPayload) {
@@ -89,6 +95,8 @@ public class PlanetUserService implements IPlanetUserService{
         PlanetUser user = new PlanetUser();
         user.setUserId(UUID.randomUUID().toString());
         user.setUsername(requestPayload.getUsername());
+        user.setFirstName(requestPayload.getFirstName());
+        user.setLastName(requestPayload.getLastName());
         user.setEmailAddress(requestPayload.getEmailAddress());
         user.setPassword(passwordUtil.hashPassword(requestPayload.getPassword()));
         user.setMobileNumber(requestPayload.getMobileNumber());
@@ -121,10 +129,11 @@ public class PlanetUserService implements IPlanetUserService{
 //                    System.out.println(user.getOtp());
                     String otp = "1234";
                     user.setOtp(otp);
+                    user.setOtp(passwordUtil.hashPassword(otp));
                     user.setOtpCreatedDate(LocalDateTime.now());
                     user.setOtpExpDate(user.getOtpCreatedDate().plusMinutes(10));
                     userRepository.saveAndFlush(user);
-                    System.out.println(user.getOtp());
+                    log.info("OTP: {}", user.getOtp());
                 }
         );
 
@@ -212,7 +221,7 @@ public class PlanetUserService implements IPlanetUserService{
             walletRepository.saveAndFlush(planetWallet);
 
             // Call a service to create a paystack customer associated with user
-
+            customerService.createPaystackCustomer(user.getEmailAddress(), user.getUsername(), user.getUsername(), user.getMobileNumber());
             // Use the customerId from paystack to create a virtual account for the customer.
 
         });
