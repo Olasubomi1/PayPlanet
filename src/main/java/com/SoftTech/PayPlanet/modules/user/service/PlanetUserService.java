@@ -221,7 +221,7 @@ public class PlanetUserService implements IPlanetUserService{
             walletRepository.saveAndFlush(planetWallet);
 
             // Call a service to create a paystack customer associated with user
-            customerService.createPaystackCustomer(user.getEmailAddress(), user.getUsername(), user.getUsername(), user.getMobileNumber());
+            customerService.createPaystackCustomer(user.getEmailAddress(), user.getFirstName(), user.getLastName(), user.getMobileNumber());
             // Use the customerId from paystack to create a virtual account for the customer.
 
         });

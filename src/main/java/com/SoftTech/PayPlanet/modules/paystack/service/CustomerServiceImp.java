@@ -1,10 +1,8 @@
 package com.SoftTech.PayPlanet.modules.paystack.service;
 
-import com.SoftTech.PayPlanet.constants.ResponseCode;
-import com.SoftTech.PayPlanet.dto.ErrorResponse;
 import com.SoftTech.PayPlanet.dto.ServerResponse;
+import com.SoftTech.PayPlanet.modules.paystack.orm.CreateCustomerResponse;
 import com.SoftTech.PayPlanet.modules.paystack.payload.CreateCustomerRequestPayload;
-import com.SoftTech.PayPlanet.web.PaystackWebResponse;
 import com.SoftTech.PayPlanet.web.WebService;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
@@ -43,22 +41,26 @@ public class CustomerServiceImp implements CustomerService{
         String url = environment.getProperty("paystack.createCustomerUrl");
         String response = WebService.postForObject(url, requestJson, null, headers);
         log.info("response: {}", response);
-        PaystackWebResponse webResponse = gson.fromJson(response, PaystackWebResponse.class);
 
-        if(webResponse.isConnectionError()){
-            ErrorResponse errorResponse = ErrorResponse.getInstance();
-            errorResponse.setResponseCode(ResponseCode.THIRD_PARTY_FAILURE);
-            errorResponse.setResponseCode(webResponse.getMessage());
-            return errorResponse;
-        }
+        CreateCustomerResponse responsePayload = gson.fromJson(response, CreateCustomerResponse.class);
+        log.info("mapped response: {}", responsePayload);
 
+//        PaystackWebResponse webResponse = gson.fromJson(response, PaystackWebResponse.class);
+//        log.info("paystack Mapped Response: {}", responsePayload);
+
+//        if(webResponse.isConnectionError()){
+//            ErrorResponse errorResponse = ErrorResponse.getInstance();
+//            errorResponse.setResponseCode(ResponseCode.THIRD_PARTY_FAILURE);
+//            errorResponse.setResponseCode(webResponse.getMessage());
+//            return errorResponse;
+//        }
 
         return null;
     }
 
     @Override
     public ServerResponse handlePaystackCustomerCallback(Map<String, String> params) {
-        log.info("response: {}", params);
+        log.info("handle paystack response: {}", params);
         return null;
     }
 }

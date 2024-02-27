@@ -31,8 +31,7 @@ public class WebService {
         }
     }
 
-    public static String postForObject(String url, String body, Map<String, Object> params, Map<String, String> headers)
-    {
+    public static String postForObject(String url, String body, Map<String, Object> params, Map<String, String> headers) {
         PaystackWebResponse paystackWebResponse = new PaystackWebResponse();
         paystackWebResponse.setConnectionError(false);
 
@@ -44,10 +43,11 @@ public class WebService {
                 postRequest.headers(headers);
 
             String webDataString = postRequest.asString().getBody();
-            paystackWebResponse.setWebDataString(webDataString);
+//            paystackWebResponse.setWebDataString(webDataString);
 
             log.info("Paystack response: {}", webDataString);
-            return gson.toJson(paystackWebResponse);
+//            return gson.toJson(paystackWebResponse);
+            return webDataString;
         }
         catch (UnirestException exception) {
             log.error("Server connection or client error: {}", exception.getMessage());
@@ -57,6 +57,4 @@ public class WebService {
             return gson.toJson(paystackWebResponse);
         }
     }
-
-    
 }
