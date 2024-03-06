@@ -9,6 +9,7 @@ import com.SoftTech.PayPlanet.dto.ErrorResponse;
 import com.SoftTech.PayPlanet.dto.OtpSendInfo;
 import com.SoftTech.PayPlanet.dto.PayloadResponse;
 import com.SoftTech.PayPlanet.dto.ServerResponse;
+import com.SoftTech.PayPlanet.modules.paystack.orm.CreateCustomerResponse;
 import com.SoftTech.PayPlanet.modules.paystack.service.CustomerService;
 import com.SoftTech.PayPlanet.modules.user.model.PlanetUser;
 import com.SoftTech.PayPlanet.modules.user.payload.request.SignupOtpVerificationRequestPayload;
@@ -222,6 +223,7 @@ public class PlanetUserService implements IPlanetUserService{
 
             // Call a service to create a paystack customer associated with user
             customerService.createPaystackCustomer(user.getEmailAddress(), user.getFirstName(), user.getLastName(), user.getMobileNumber());
+            // Save customer response into datebase and use it to create virtual account
             // Use the customerId from paystack to create a virtual account for the customer.
 
         });

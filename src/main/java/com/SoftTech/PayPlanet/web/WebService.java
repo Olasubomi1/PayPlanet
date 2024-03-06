@@ -43,10 +43,8 @@ public class WebService {
                 postRequest.headers(headers);
 
             String webDataString = postRequest.asString().getBody();
-//            paystackWebResponse.setWebDataString(webDataString);
+            paystackWebResponse.setWebDataString(webDataString);
 
-            log.info("Paystack response: {}", webDataString);
-//            return gson.toJson(paystackWebResponse);
             return webDataString;
         }
         catch (UnirestException exception) {

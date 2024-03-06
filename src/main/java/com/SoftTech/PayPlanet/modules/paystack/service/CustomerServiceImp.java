@@ -1,8 +1,11 @@
 package com.SoftTech.PayPlanet.modules.paystack.service;
 
+import com.SoftTech.PayPlanet.constants.ResponseCode;
+import com.SoftTech.PayPlanet.dto.ErrorResponse;
 import com.SoftTech.PayPlanet.dto.ServerResponse;
 import com.SoftTech.PayPlanet.modules.paystack.orm.CreateCustomerResponse;
 import com.SoftTech.PayPlanet.modules.paystack.payload.CreateCustomerRequestPayload;
+import com.SoftTech.PayPlanet.web.PaystackWebResponse;
 import com.SoftTech.PayPlanet.web.WebService;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +26,8 @@ public class CustomerServiceImp implements CustomerService{
     private static final Gson gson = new Gson();
 
     @Override
-    public ServerResponse createPaystackCustomer(String email, String firstName, String lastName, String phone) {
+    public CreateCustomerResponse createPaystackCustomer(String email, String firstName, String lastName, String phone) {
+        CreateCustomerResponse responsePayload;
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Bearer ".concat(Objects.requireNonNull(environment.getProperty("paystack.secretKey"))));
         headers.put("Content-Type", "application/json");
@@ -42,20 +46,10 @@ public class CustomerServiceImp implements CustomerService{
         String response = WebService.postForObject(url, requestJson, null, headers);
         log.info("response: {}", response);
 
-        CreateCustomerResponse responsePayload = gson.fromJson(response, CreateCustomerResponse.class);
+        responsePayload = gson.fromJson(response, CreateCustomerResponse.class);
         log.info("mapped response: {}", responsePayload);
 
-//        PaystackWebResponse webResponse = gson.fromJson(response, PaystackWebResponse.class);
-//        log.info("paystack Mapped Response: {}", responsePayload);
-
-//        if(webResponse.isConnectionError()){
-//            ErrorResponse errorResponse = ErrorResponse.getInstance();
-//            errorResponse.setResponseCode(ResponseCode.THIRD_PARTY_FAILURE);
-//            errorResponse.setResponseCode(webResponse.getMessage());
-//            return errorResponse;
-//        }
-
-        return null;
+        return responsePayload;
     }
 
     @Override
