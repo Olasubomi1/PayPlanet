@@ -1,5 +1,7 @@
 package com.SoftTech.PayPlanet.modules.paystack.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -29,6 +31,18 @@ public class Customer {
 
     @Column(name = "phone_number")
     private String phone;
+
+    @Column(name = "customer_code")
+    private String customerCode;
+
+    @Column(name = "integration")
+    private int integration;
+
+    @Column(name = "domain")
+    private String domain;
+
+    @Column(name = "identified")
+    private boolean identified;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

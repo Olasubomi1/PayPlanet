@@ -3,8 +3,10 @@ package com.SoftTech.PayPlanet.modules.paystack.service;
 import com.SoftTech.PayPlanet.constants.ResponseCode;
 import com.SoftTech.PayPlanet.dto.ErrorResponse;
 import com.SoftTech.PayPlanet.dto.ServerResponse;
+import com.SoftTech.PayPlanet.modules.paystack.model.Customer;
 import com.SoftTech.PayPlanet.modules.paystack.orm.CreateCustomerResponse;
 import com.SoftTech.PayPlanet.modules.paystack.payload.CreateCustomerRequestPayload;
+import com.SoftTech.PayPlanet.modules.paystack.repository.CustomerRepository;
 import com.SoftTech.PayPlanet.web.PaystackWebResponse;
 import com.SoftTech.PayPlanet.web.WebService;
 import com.google.gson.Gson;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -22,6 +25,9 @@ import java.util.Objects;
 public class CustomerServiceImp implements CustomerService{
     @Autowired
     private Environment environment;
+
+    @Autowired
+    private CustomerRepository repository;
 
     private static final Gson gson = new Gson();
 
@@ -48,6 +54,18 @@ public class CustomerServiceImp implements CustomerService{
 
         responsePayload = gson.fromJson(response, CreateCustomerResponse.class);
         log.info("mapped response: {}", responsePayload);
+
+        Customer customer = new Customer();
+        customer.setCustomerCode(responsePayload.getData().getCustomerCode());
+        customer.setFirstName(firstName);
+        customer.setLastName(lastName);
+        customer.setEmail(email);
+        customer.setPhone(phone);
+        customer.setIntegration(responsePayload.getData().getIntegration());
+        customer.setDomain(responsePayload.getData().getDomain());
+        customer.setIdentified(responsePayload.getData().isIdentified());
+        customer.setCreatedAt(LocalDateTime.now());
+        repository.saveAndFlush(customer);
 
         return responsePayload;
     }
