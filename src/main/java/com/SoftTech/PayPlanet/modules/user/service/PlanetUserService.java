@@ -3,14 +3,14 @@ package com.SoftTech.PayPlanet.modules.user.service;
 import com.SoftTech.PayPlanet.config.MessageProvider;
 import com.SoftTech.PayPlanet.constants.Creator;
 import com.SoftTech.PayPlanet.constants.ResponseCode;
-import com.SoftTech.PayPlanet.constants.RoleName;
 import com.SoftTech.PayPlanet.constants.Status;
 import com.SoftTech.PayPlanet.dto.ErrorResponse;
-import com.SoftTech.PayPlanet.dto.OtpSendInfo;
 import com.SoftTech.PayPlanet.dto.PayloadResponse;
 import com.SoftTech.PayPlanet.dto.ServerResponse;
-import com.SoftTech.PayPlanet.modules.paystack.orm.CreateCustomerResponse;
+import com.SoftTech.PayPlanet.modules.paystack.model.Customer;
+import com.SoftTech.PayPlanet.modules.paystack.repository.CustomerRepository;
 import com.SoftTech.PayPlanet.modules.paystack.service.CustomerService;
+import com.SoftTech.PayPlanet.modules.paystack.service.DVAService;
 import com.SoftTech.PayPlanet.modules.user.model.PlanetUser;
 import com.SoftTech.PayPlanet.modules.user.payload.request.SignupOtpVerificationRequestPayload;
 import com.SoftTech.PayPlanet.modules.user.payload.request.SignupUserRequestPayload;
@@ -25,6 +25,7 @@ import com.SoftTech.PayPlanet.utils.OtpUtil;
 import com.SoftTech.PayPlanet.utils.PasswordUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -35,6 +36,9 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 @Service
 public class PlanetUserService implements IPlanetUserService{
+    @Autowired
+    private Environment environment;
+
     @Autowired
     private IPlanetUserRepository userRepository;
 
@@ -55,6 +59,12 @@ public class PlanetUserService implements IPlanetUserService{
 
     @Autowired
     private CustomerService customerService;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private DVAService dvaService;
 
     @Override
     public ServerResponse signupUser(SignupUserRequestPayload requestPayload) {
@@ -224,10 +234,11 @@ public class PlanetUserService implements IPlanetUserService{
             // todo: Call a service to create a paystack customer associated with user
             customerService.createPaystackCustomer(user.getEmailAddress(), user.getFirstName(), user.getLastName(), user.getMobileNumber());
             // todo: Save customer response into datebase and use it to create virtual account
-
             // todo:  Use the customerId or customerCode from paystack to create a virtual account for the customer.
-
-
+            Customer customer = customerRepository.findByEmailAddress(user.getEmailAddress());
+            int customerCode = Integer.parseInt(customer.getCustomerCode());
+            String preferredBank = environment.getProperty("paystack.preferredBank");
+            dvaService.createAccount(customerCode, preferredBank, customer.getFirstName(), customer.getLastName(), customer.getPhone());
         });
 
         // Create response to the application client.

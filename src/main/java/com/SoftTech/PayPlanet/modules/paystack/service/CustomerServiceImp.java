@@ -1,13 +1,10 @@
 package com.SoftTech.PayPlanet.modules.paystack.service;
 
-import com.SoftTech.PayPlanet.constants.ResponseCode;
-import com.SoftTech.PayPlanet.dto.ErrorResponse;
 import com.SoftTech.PayPlanet.dto.ServerResponse;
 import com.SoftTech.PayPlanet.modules.paystack.model.Customer;
-import com.SoftTech.PayPlanet.modules.paystack.orm.CreateCustomerResponse;
-import com.SoftTech.PayPlanet.modules.paystack.payload.CreateCustomerRequestPayload;
+import com.SoftTech.PayPlanet.modules.paystack.payload.response.CreateCustomerResponse;
+import com.SoftTech.PayPlanet.modules.paystack.payload.request.CreateCustomerRequestPayload;
 import com.SoftTech.PayPlanet.modules.paystack.repository.CustomerRepository;
-import com.SoftTech.PayPlanet.web.PaystackWebResponse;
 import com.SoftTech.PayPlanet.web.WebService;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;

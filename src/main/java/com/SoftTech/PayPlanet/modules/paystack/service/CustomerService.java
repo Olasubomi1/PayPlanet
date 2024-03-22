@@ -1,7 +1,7 @@
 package com.SoftTech.PayPlanet.modules.paystack.service;
 
 import com.SoftTech.PayPlanet.dto.ServerResponse;
-import com.SoftTech.PayPlanet.modules.paystack.orm.CreateCustomerResponse;
+import com.SoftTech.PayPlanet.modules.paystack.payload.response.CreateCustomerResponse;
 
 import java.util.Map;
 

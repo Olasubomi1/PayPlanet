@@ -1,5 +1,6 @@
-package com.SoftTech.PayPlanet.modules.paystack.orm;
+package com.SoftTech.PayPlanet.modules.paystack.payload.response;
 
+import com.SoftTech.PayPlanet.modules.paystack.orm.CreateCustomerData;
 import lombok.Data;
 
 @Data
