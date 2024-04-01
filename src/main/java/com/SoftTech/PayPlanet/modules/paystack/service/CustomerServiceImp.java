@@ -31,6 +31,7 @@ public class CustomerServiceImp implements CustomerService{
     @Override
     public CreateCustomerResponse createPaystackCustomer(String email, String firstName, String lastName, String phone) {
         CreateCustomerResponse responsePayload;
+        Customer customer = new Customer();
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Bearer ".concat(Objects.requireNonNull(environment.getProperty("paystack.secretKey"))));
         headers.put("Content-Type", "application/json");
@@ -52,7 +53,6 @@ public class CustomerServiceImp implements CustomerService{
         responsePayload = gson.fromJson(response, CreateCustomerResponse.class);
         log.info("mapped response: {}", responsePayload);
 
-        Customer customer = new Customer();
         customer.setCustomerCode(responsePayload.getData().getCustomerCode());
         customer.setFirstName(firstName);
         customer.setLastName(lastName);

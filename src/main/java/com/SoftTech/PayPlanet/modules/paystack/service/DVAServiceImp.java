@@ -51,42 +51,12 @@ public class DVAServiceImp implements DVAService {
         String requestJson = gson.toJson(requestPayload);
 
         String url = environment.getProperty("paystack.createCustomerDVAUrl");
+        System.out.println("dvacreate url "+ url);
         String response = WebService.postForObject(url, requestJson, null, headers);
         log.info("DVA response: {}", response);
 
         responsePayload = gson.fromJson(response, CreateDVAResponse.class);
         log.info("DVA mapped response: {}", responsePayload);
-
-        var virtualAccount = getDedicatedVirtualAccount(responsePayload);
-        repository.saveAndFlush(virtualAccount);
-
-        return responsePayload;
-    }
-
-    private static DedicatedVirtualAccount getDedicatedVirtualAccount(CreateDVAResponse responsePayload) {
-        var virtualAccount = getVirtualAccount(responsePayload);
-
-        virtualAccount.getBank().setId(responsePayload.getData().getBank().getId());
-        virtualAccount.getBank().setName(responsePayload.getData().getBank().getName());
-        virtualAccount.getBank().setSlug(responsePayload.getData().getBank().getSlug());
-        virtualAccount.getAssignment().setIntegration(responsePayload.getData().getAssignment().getIntegration());
-        virtualAccount.getAssignment().setAccountType(responsePayload.getData().getAssignment().getAccountType());
-        virtualAccount.getAssignment().setAssigneeId(responsePayload.getData().getAssignment().getAssigneeId());
-        virtualAccount.getAssignment().setAssignedAt(responsePayload.getData().getAssignment().getAssignedAt());
-        virtualAccount.getAssignment().setAssigneeType(responsePayload.getData().getAssignment().getAssigneeType());
-        virtualAccount.getAssignment().setExpired(responsePayload.getData().getAssignment().isExpired());
-        virtualAccount.getCustomer().setId(responsePayload.getData().getCustomer().getId());
-        virtualAccount.getCustomer().setCustomerCode(responsePayload.getData().getCustomer().getCustomerCode());
-        virtualAccount.getCustomer().setEmail(responsePayload.getData().getCustomer().getEmail());
-        virtualAccount.getCustomer().setPhone(responsePayload.getData().getCustomer().getPhone());
-        virtualAccount.getCustomer().setFirstName(responsePayload.getData().getCustomer().getFirstName());
-        virtualAccount.getCustomer().setLastName(responsePayload.getData().getCustomer().getLastName());
-        virtualAccount.getCustomer().setRiskAction(responsePayload.getData().getCustomer().getRiskAction());
-
-        return virtualAccount;
-    }
-
-    private static DedicatedVirtualAccount getVirtualAccount(CreateDVAResponse responsePayload) {
         DedicatedVirtualAccount virtualAccount = new DedicatedVirtualAccount();
         virtualAccount.setDVAId(responsePayload.getData().getId());
         virtualAccount.setAccountName(responsePayload.getData().getAccountName());
@@ -97,7 +67,25 @@ public class DVAServiceImp implements DVAService {
         virtualAccount.setActive(responsePayload.getData().isAssigned());
         virtualAccount.setCreatedAt(responsePayload.getData().getCreatedAt());
         virtualAccount.setUpdatedAt(responsePayload.getData().getUpdatedAt());
-        return virtualAccount;
+        virtualAccount.getBank().setBankId(responsePayload.getData().getBank().getId());
+        virtualAccount.getBank().setName(responsePayload.getData().getBank().getName());
+        virtualAccount.getBank().setSlug(responsePayload.getData().getBank().getSlug());
+        virtualAccount.getAssignment().setIntegration(responsePayload.getData().getAssignment().getIntegration());
+        virtualAccount.getAssignment().setAccountType(responsePayload.getData().getAssignment().getAccountType());
+        virtualAccount.getAssignment().setAssigneeId(responsePayload.getData().getAssignment().getAssigneeId());
+        virtualAccount.getAssignment().setAssignedAt(responsePayload.getData().getAssignment().getAssignedAt());
+        virtualAccount.getAssignment().setAssigneeType(responsePayload.getData().getAssignment().getAssigneeType());
+        virtualAccount.getAssignment().setExpired(responsePayload.getData().getAssignment().isExpired());
+        virtualAccount.getCustomer().setCustomerId(responsePayload.getData().getCustomer().getId());
+        virtualAccount.getCustomer().setCustomerCode(responsePayload.getData().getCustomer().getCustomerCode());
+        virtualAccount.getCustomer().setEmail(responsePayload.getData().getCustomer().getEmail());
+        virtualAccount.getCustomer().setPhone(responsePayload.getData().getCustomer().getPhone());
+        virtualAccount.getCustomer().setFirstName(responsePayload.getData().getCustomer().getFirstName());
+        virtualAccount.getCustomer().setLastName(responsePayload.getData().getCustomer().getLastName());
+        virtualAccount.getCustomer().setRiskAction(responsePayload.getData().getCustomer().getRiskAction());
+        repository.saveAndFlush(virtualAccount);
+
+        return responsePayload;
     }
 
 }

@@ -1,8 +1,5 @@
 package com.SoftTech.PayPlanet.modules.paystack.model;
 
-import com.SoftTech.PayPlanet.modules.paystack.orm.Assignment;
-import com.SoftTech.PayPlanet.modules.paystack.orm.Bank;
-import com.SoftTech.PayPlanet.modules.paystack.orm.CustomerData;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -26,7 +23,28 @@ public class DedicatedVirtualAccount {
     private boolean active;
     private String createdAt;
     private String updatedAt;
+
+    @OneToOne
+    @JoinTable(
+            name = "dva_bank",
+            joinColumns = @JoinColumn(name = "dva_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn( name = "bank_id", referencedColumnName = "id")
+    )
     Bank bank;
+
+    @OneToOne
+    @JoinTable(
+            name = "dva_assignment",
+            joinColumns = @JoinColumn(name = "dva_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn( name = "assignment_id", referencedColumnName = "id")
+    )
     Assignment assignment;
+
+    @OneToOne
+    @JoinTable(
+            name = "dva_customer",
+            joinColumns = @JoinColumn(name = "dva_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn( name = "customer_id", referencedColumnName = "id")
+    )
     CustomerData customer;
 }

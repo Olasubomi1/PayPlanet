@@ -32,9 +32,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
-@Service
+//@Service
 public class PlanetUserService implements IPlanetUserService{
     @Autowired
     private Environment environment;
@@ -175,7 +176,7 @@ public class PlanetUserService implements IPlanetUserService{
         PlanetUser user = userRepository.findByEmailAddress(userEmail);
 
 
-        // Check for the existence of the user in the system
+//         Check for the existence of the user in the system
         if(user == null) {
             responseCode = ResponseCode.RECORD_NOT_FOUND;
             responseMessage = messageProvider.getMessage(responseCode);
@@ -231,14 +232,35 @@ public class PlanetUserService implements IPlanetUserService{
             planetWallet.setBalance(new BigDecimal(0));
             walletRepository.saveAndFlush(planetWallet);
 
-            // todo: Call a service to create a paystack customer associated with user
-            customerService.createPaystackCustomer(user.getEmailAddress(), user.getFirstName(), user.getLastName(), user.getMobileNumber());
-            // todo: Save customer response into datebase and use it to create virtual account
-            // todo:  Use the customerId or customerCode from paystack to create a virtual account for the customer.
-            Customer customer = customerRepository.findByEmailAddress(user.getEmailAddress());
-            int customerCode = Integer.parseInt(customer.getCustomerCode());
+
+        });
+        // todo: Call a service to create a paystack customer associated with user
+
+        // todo: Save customer response into datebase and use it to create virtual account
+        // todo:  Use the customerId or customerCode from paystack to create a virtual account for the customer.
+        AtomicReference<Customer> customer = null;
+        var future = CompletableFuture.runAsync( () ->
+                        System.out.println("soft")
+//                customerService.createPaystackCustomer(
+//                user.getEmailAddress(),
+//                user.getFirstName(),
+//                user.getLastName(),
+//                user.getMobileNumber())
+              );
+        future.thenAcceptAsync(result -> {
+            customer.set(customerRepository.findByEmail(user.getEmailAddress()));
+            log.info("customer {}", customer);
+            System.out.println("soft");
+        }).thenAcceptAsync(result -> {
+            int customerCode = Integer.parseInt(customer.get().getCustomerCode());
+            log.info("customerCode {}", customerCode);
             String preferredBank = environment.getProperty("paystack.preferredBank");
-            dvaService.createAccount(customerCode, preferredBank, customer.getFirstName(), customer.getLastName(), customer.getPhone());
+            dvaService.createAccount(
+                    customerCode,
+                    preferredBank,
+                    customer.get().getFirstName(),
+                    customer.get().getLastName(),
+                    customer.get().getPhone());
         });
 
         // Create response to the application client.

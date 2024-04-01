@@ -1,24 +1,20 @@
 package com.SoftTech.PayPlanet.modules.paystack.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.gson.annotations.SerializedName;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "paystack_customer_init")
 @Data
 @Getter
 @Setter
-@Entity
-@Table(name = "paystack_customer_init")
 public class Customer {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @Column(name = "email")
     private String email;
