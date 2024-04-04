@@ -12,6 +12,7 @@ import com.SoftTech.PayPlanet.modules.paystack.repository.CustomerRepository;
 import com.SoftTech.PayPlanet.modules.paystack.service.CustomerService;
 import com.SoftTech.PayPlanet.modules.paystack.service.DVAService;
 import com.SoftTech.PayPlanet.modules.user.model.PlanetUser;
+import com.SoftTech.PayPlanet.modules.user.payload.request.LoginUserRequestPayload;
 import com.SoftTech.PayPlanet.modules.user.payload.request.SignupOtpVerificationRequestPayload;
 import com.SoftTech.PayPlanet.modules.user.payload.request.SignupUserRequestPayload;
 import com.SoftTech.PayPlanet.modules.user.payload.response.SignupOtpVerificationResponsePayload;
@@ -35,7 +36,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
-//@Service
+@Service
 public class PlanetUserService implements IPlanetUserService{
     @Autowired
     private Environment environment;
@@ -238,29 +239,25 @@ public class PlanetUserService implements IPlanetUserService{
 
         // todo: Save customer response into datebase and use it to create virtual account
         // todo:  Use the customerId or customerCode from paystack to create a virtual account for the customer.
-        AtomicReference<Customer> customer = null;
-        var future = CompletableFuture.runAsync( () ->
-                        System.out.println("soft")
-//                customerService.createPaystackCustomer(
-//                user.getEmailAddress(),
-//                user.getFirstName(),
-//                user.getLastName(),
-//                user.getMobileNumber())
-              );
+        AtomicReference<Customer> customer = new AtomicReference<>(null);
+        var future = CompletableFuture.runAsync( () -> {
+                        System.out.println("soft");
+                customerService.createPaystackCustomer(
+                user.getEmailAddress(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getMobileNumber());
+        });
         future.thenAcceptAsync(result -> {
-            customer.set(customerRepository.findByEmail(user.getEmailAddress()));
-            log.info("customer {}", customer);
-            System.out.println("soft");
+            Customer customer1 = customerRepository.findFirstByEmail(user.getEmailAddress());
+            customer.set(customerRepository.findFirstByEmail(user.getEmailAddress()));
         }).thenAcceptAsync(result -> {
-            int customerCode = Integer.parseInt(customer.get().getCustomerCode());
-            log.info("customerCode {}", customerCode);
+            String customerCode = (customer.get().getCustomerCode());
             String preferredBank = environment.getProperty("paystack.preferredBank");
-            dvaService.createAccount(
-                    customerCode,
-                    preferredBank,
-                    customer.get().getFirstName(),
-                    customer.get().getLastName(),
-                    customer.get().getPhone());
+//            dvaService.createAccount(customerCode, preferredBank, customer.get().getFirstName(), customer.get().getLastName(), customer.get().getPhone());
+        }).exceptionally((ex) -> {
+            ex.printStackTrace();
+            return null;
         });
 
         // Create response to the application client.
@@ -275,5 +272,10 @@ public class PlanetUserService implements IPlanetUserService{
         payloadResponse.setResponseMessage(messageProvider.getMessage(ResponseCode.SUCCESS));
         payloadResponse.setResponseData(responsePayload);
         return payloadResponse;
+    }
+
+    @Override
+    public ServerResponse loginUser(LoginUserRequestPayload requestPayload) {
+        return null;
     }
 }

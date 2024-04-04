@@ -33,7 +33,7 @@ public class DVAServiceImp implements DVAService {
 
     private static final Gson gson = new Gson();
     @Override
-    public CreateDVAResponse createAccount(int customerCode, String preferredBank, String firstName, String lastName, String phone) {
+    public CreateDVAResponse createAccount(String customerCode, String preferredBank, String firstName, String lastName, String phone) {
         CreateDVAResponse responsePayload;
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Bearer ".concat(Objects.requireNonNull(environment.getProperty("paystack.secretKey"))));
@@ -48,6 +48,7 @@ public class DVAServiceImp implements DVAService {
         requestPayload.setLastName(firstName);
         requestPayload.setPhone(phone);
         requestPayload.setCallbackUrl(callBackUrl);
+        System.out.println("dva request ========> " + requestPayload.toString());
         String requestJson = gson.toJson(requestPayload);
 
         String url = environment.getProperty("paystack.createCustomerDVAUrl");
