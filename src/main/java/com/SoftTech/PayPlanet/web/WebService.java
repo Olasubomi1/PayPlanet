@@ -42,6 +42,35 @@ public class WebService {
             if(headers != null)
                 postRequest.headers(headers);
 
+
+            String webDataString = postRequest.asString().getBody();
+            paystackWebResponse.setWebDataString(webDataString);
+
+            return webDataString;
+        }
+        catch (UnirestException exception) {
+            log.error("Server connection or client error: {}", exception.getMessage());
+            paystackWebResponse.setMessage(exception.getMessage());
+            paystackWebResponse.setStatus(false);
+            paystackWebResponse.setConnectionError(true);
+            return gson.toJson(paystackWebResponse);
+        }
+    }
+
+    public static String postForObject(String url, String body, Map<String, Object> params,Map<String, Object> pathVariable, Map<String, String> headers) {
+        PaystackWebResponse paystackWebResponse = new PaystackWebResponse();
+        paystackWebResponse.setConnectionError(false);
+
+        try{
+            RequestBodyEntity postRequest = Unirest.post(url).body(body);
+            if(params != null)
+                postRequest.queryString(params);
+            if(headers != null)
+                postRequest.headers(headers);
+            if(pathVariable != null)
+                postRequest.routeParam(pathVariable);
+
+
             String webDataString = postRequest.asString().getBody();
             paystackWebResponse.setWebDataString(webDataString);
 
