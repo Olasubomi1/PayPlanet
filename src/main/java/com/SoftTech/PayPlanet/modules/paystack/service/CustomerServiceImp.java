@@ -1,9 +1,15 @@
 package com.SoftTech.PayPlanet.modules.paystack.service;
 
+import com.SoftTech.PayPlanet.config.MessageProvider;
+import com.SoftTech.PayPlanet.constants.ResponseCode;
+import com.SoftTech.PayPlanet.dto.ErrorResponse;
+import com.SoftTech.PayPlanet.dto.PayloadResponse;
 import com.SoftTech.PayPlanet.dto.ServerResponse;
 import com.SoftTech.PayPlanet.modules.paystack.model.Customer;
+import com.SoftTech.PayPlanet.modules.paystack.payload.request.ValidateCustomerRequestPayload;
 import com.SoftTech.PayPlanet.modules.paystack.payload.response.CreateCustomerResponse;
 import com.SoftTech.PayPlanet.modules.paystack.payload.request.CreateCustomerRequestPayload;
+import com.SoftTech.PayPlanet.modules.paystack.payload.response.ValidateCustomerResponsePayload;
 import com.SoftTech.PayPlanet.modules.paystack.repository.CustomerRepository;
 import com.SoftTech.PayPlanet.web.WebService;
 import com.google.gson.Gson;
@@ -27,6 +33,9 @@ public class CustomerServiceImp implements CustomerService{
     private CustomerRepository repository;
 
     private static final Gson gson = new Gson();
+
+    @Autowired
+    private MessageProvider messageProvider;
 
     @Override
     public CreateCustomerResponse createPaystackCustomer(String email, String firstName, String lastName, String phone) {
@@ -72,4 +81,65 @@ public class CustomerServiceImp implements CustomerService{
         log.info("handle paystack response: {}", params);
         return null;
     }
+
+    @Override
+    public ServerResponse handleValidateCustomer(ValidateCustomerRequestPayload requestPayload) {
+        String responseCode = ResponseCode.SYSTEM_ERROR;
+        String responseMessage = this.messageProvider.getMessage(responseCode);
+        ErrorResponse errorResponse = ErrorResponse.getInstance();
+
+        String customerEmail = requestPayload.getEmail();
+        Customer customer = repository.findFirstByEmail(customerEmail);
+
+        // Check for the existence of the user in the system
+        if(customer == null) {
+            responseCode = ResponseCode.RECORD_NOT_FOUND;
+            responseMessage = messageProvider.getMessage(responseCode);
+            errorResponse.setResponseCode(responseCode);
+            errorResponse.setResponseMessage(responseMessage);
+            return errorResponse;
+        }
+
+        if (customer.isIdentified()){
+            responseCode = ResponseCode.CUSTOMER_ALREADY_IDENTIFIED;
+            responseMessage = messageProvider.getMessage(responseCode);
+            errorResponse.setResponseCode(responseCode);
+            errorResponse.setResponseMessage(responseMessage);
+        }
+
+        ValidateCustomerResponsePayload validateCustomerResponsePayload;
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Bearer ".concat(Objects.requireNonNull(environment.getProperty("paystack.secretKey"))));
+        headers.put("Content-Type", "application/json");
+        headers.put("Accept", "application/json");
+
+        Map<String, Object> pathVariable = new HashMap<>();
+        pathVariable.put("customer_code", customer.getCustomerCode());
+
+
+        ValidateCustomerRequestPayload requestBody = ValidateCustomerRequestPayload.builder()
+                .firstName(requestPayload.getFirstName())
+                .lastName(requestPayload.getLastName())
+                .bvn(requestPayload.getBvn())
+                .accountNumber(requestPayload.getAccountNumber())
+                .bankCode(requestPayload.getBankCode())
+                .country(requestPayload.getCountry())
+                .type(requestPayload.getType())
+                .build();
+        String requestJson = gson.toJson(requestBody);
+
+        String url = environment.getProperty("paystack.validateCustomerUrl");
+        String response = WebService.postForObject(url, requestJson, null, pathVariable, headers);
+        log.info("response: {}", response);
+
+        validateCustomerResponsePayload = gson.fromJson(response, ValidateCustomerResponsePayload.class);
+        log.info("mapped response: {}", validateCustomerResponsePayload);
+
+        PayloadResponse payloadResponse = new PayloadResponse();
+        payloadResponse.setResponseCode(ResponseCode.SUCCESS);
+        payloadResponse.setResponseMessage(messageProvider.getMessage(ResponseCode.SUCCESS));
+        payloadResponse.setResponseData(validateCustomerResponsePayload);
+        return payloadResponse;
+    }
+
 }
