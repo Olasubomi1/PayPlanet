@@ -16,4 +16,5 @@ E11: Account successfully locked.
 E12: User account is already locked.
 E13: Third party failure.
 E14: Insufficient account balance.
+E15: Customer is already identified.
 E99: System Error.

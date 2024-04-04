@@ -18,5 +18,6 @@ public class ResponseCode {
     public static final String USER_ACCOUNT_AlREADY_LOCKED = "12";
     public static final String THIRD_PARTY_FAILURE = "13";
     public static final String INSUFFICIENT_ACCOUNT_BALANCE = "14";
+    public static final String CUSTOMER_ALREADY_IDENTIFIED = "15";
     public static final String SYSTEM_ERROR = "99";
 }
