@@ -74,3 +74,7 @@ view loan details, and manage loan payments.
  set budgets, and analyze their financial health.
 -Customer Support: Implementing a support system to allow users to
 contact customer service, report issues, and receive assistance promptly.
+
+Learn about webhook
+-Create a webhook module
+-Implement it with paystack
