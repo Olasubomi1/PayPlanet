@@ -117,15 +117,14 @@ public class CustomerServiceImp implements CustomerService{
         pathVariable.put("customer_code", customer.getCustomerCode());
 
 
-        ValidateCustomerRequestPayload requestBody = ValidateCustomerRequestPayload.builder()
-                .firstName(requestPayload.getFirstName())
-                .lastName(requestPayload.getLastName())
-                .bvn(requestPayload.getBvn())
-                .accountNumber(requestPayload.getAccountNumber())
-                .bankCode(requestPayload.getBankCode())
-                .country(requestPayload.getCountry())
-                .type(requestPayload.getType())
-                .build();
+        ValidateCustomerRequestPayload requestBody = new ValidateCustomerRequestPayload();
+                requestBody.setFirstName(requestPayload.getFirstName());
+                requestBody.setLastName(requestPayload.getLastName());
+                requestBody.setBvn(requestPayload.getBvn());
+                requestBody.setAccountNumber(requestPayload.getAccountNumber());
+                requestBody.setBankCode(requestPayload.getBankCode());
+                requestBody.setCountry(requestPayload.getCountry());
+                requestBody.setType(requestPayload.getType());
         String requestJson = gson.toJson(requestBody);
 
         String url = environment.getProperty("paystack.validateCustomerUrl");
